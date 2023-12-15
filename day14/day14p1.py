@@ -10,6 +10,9 @@ class Coord():
     def __hash__(self) -> int:
         return hash((self.x, self.y))
 
+    def __lt__(self, other):
+        return ((self.y == other.y) and (self.x < other.x)) or (self.y > other.y)
+
 @dataclass
 class CoordNS(Coord):
     num_rocks: int = 0
@@ -25,6 +28,9 @@ class CoordNS(Coord):
     
     def get_rock_coords(self) -> list:
         return [Coord(self.x, self.y - (i + 1)) for i in range(self.num_rocks)]
+    
+    def __str__(self):
+        return f'CoordNS({self.x}, {self.y}): {self.num_rocks}'
 
 class CoordEW(Coord):
     num_rocks: int = 0
@@ -40,6 +46,9 @@ class CoordEW(Coord):
     
     def get_rock_coords(self) -> list:
         return [Coord(self.x - (i + 1), self.y) for i in range(self.num_rocks)]
+
+    def __str__(self):
+        return f'CoordEW({self.x}, {self.y}): {self.num_rocks}'
 
 def round_rocks_from_cube_rocks(cube_rocks: list) -> list:
     output_round_rocks = [set()] * len(cube_rocks)
@@ -85,7 +94,7 @@ def tilt_ew(east: bool, num_cols: int, cube_rocks_ew: list, round_rocks: set) ->
     for r in round_rocks:
         round_rocks_set[r.y - 1].add(r.x)
 
-    print(f'round_rocks = {round_rocks}')
+    print(f'round_rocks = {sorted(round_rocks)}')
     # For row, iterate through the rows in the direction of tilt
     # If there are no other cube rocks in the way, add this round rock to the cube rock counter
     for row in range(len(cube_rocks_ew)):
@@ -131,8 +140,8 @@ def main():
     cube_rocks_ew = [[CoordEW(x + 1, len(dish_map) - y) for x in range(len(dish_map[0])) if dish_map[y][x] == '#'] for y in range(len(dish_map))]
     print(f'cube_rocks_ew = {cube_rocks_ew}')
     for i in range(len(cube_rocks_ew)):
-        cube_rocks_ew[i].insert(0, CoordEW(0, len(dish_map) - i))
-        cube_rocks_ew[i].append(CoordEW(len(dish_map[0]), len(dish_map) - i))
+        cube_rocks_ew[i].insert(0, CoordEW(len(dish_map[0]) + 1, len(dish_map) - i))
+        cube_rocks_ew[i].append(CoordEW(0, len(dish_map) - i))
 
     print(f'round_rocks = {round_rocks}')
     print(f'cube_rocks_ns = {cube_rocks_ns}')
